@@ -1,4 +1,5 @@
 import pygame
+import pieces
 
 pygame.init()
 
@@ -16,7 +17,7 @@ big_font = pygame.font.Font('freesansbold.ttf', 50)
 timer = pygame.time.Clock()
 fps = 60
 
-# loading images
+# loading images - taken from cburnett
 black_pawn_light = pygame.image.load('assets/images/pawn_black_light.png')
 black_pawn_dark = pygame.image.load('assets/images/pawn_black_dark.png')
 black_queen_light = pygame.image.load('assets/images/queen_black_light.png')
