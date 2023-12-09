@@ -1,5 +1,6 @@
 import pygame
 import pieces
+import board
 
 pygame.init()
 
@@ -31,12 +32,19 @@ black_knight_dark = pygame.image.load('assets/images/knight_black_dark.png')
 black_rook_light = pygame.image.load('assets/images/rook_black_light.png')
 black_rook_dark = pygame.image.load('assets/images/rook_black_dark.png')
 
+game_board = board.Board()
+
+for i in range(1, 9):
+    for j in range(1, 9):
+        print(game_board.get_cell(i, j))
+    print('---')
+
+
 run = True
 while run:
+
     timer.tick(fps)
     screen.fill('dark gray')
-    screen.blit(black_queen_light, (20, 30))
-    screen.blit(black_queen_dark, (90, 30))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
