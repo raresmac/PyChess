@@ -30,6 +30,12 @@ class Player:
         self.pieces.append(game_board.get_cell(x2, 7))  # pawn 7
         self.pieces.append(game_board.get_cell(x2, 8))  # pawn 8
 
+    def get_locations(self):
+        locations = []
+        for i in self.pieces:
+            locations.append(i.get_coords())
+        return locations
+
     def get_piece(self, index: int):
         return self.pieces[index]
 

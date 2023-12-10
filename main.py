@@ -1,4 +1,5 @@
 import pygame
+
 import pieces
 import board
 import player
@@ -10,10 +11,11 @@ width = 640
 height = 640
 screen = pygame.display.set_mode([width, height])
 pygame.display.set_caption('PyChess')
+screen.fill('dark gray')
 
 # image coordinates
-coords_y = [520 - (i - 1) * 68 for i in range(9)]
 coords_x = [45 + (i - 1) * 68 for i in range(9)]
+coords_y = [520 - (i - 1) * 68 for i in range(9)]
 
 # fonts
 font = pygame.font.Font('freesansbold.ttf', 20)
@@ -57,6 +59,7 @@ light_square = pygame.image.load('assets/images/square_light.png')
 game_board = board.Board()
 player_w = player.Player(game_board, 'w')
 player_b = player.Player(game_board, 'b')
+game_board.set_players(player_w, player_b)
 
 
 def board_draw(game_board):
@@ -123,20 +126,47 @@ def board_draw(game_board):
                         screen.blit(black_queen_light, (coords_x[j], coords_y[i]))
 
 
-
 # for i in range(1, 9):
 #     for j in range(1, 9):
 #         print(game_board.get_cell(i, j))
 #     print('---')
 
 
-screen.fill('dark gray')
 run = True
+select = False
+selected_piece = None
 while run:
     timer.tick(fps)
     board_draw(game_board)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            game_board.update_available_moves()
+            mouse_pos = ((588 - event.pos[1]) // 68 + 1, (event.pos[0] - 45) // 68 + 1)
+            if game_board.get_move() == 0:
+                pos_w = player_w.get_locations()
+                if mouse_pos in pos_w:
+                    if not select:
+                        select = True
+                    selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
+                else:
+                    if select and mouse_pos in selected_piece.get_available_moves():
+                        selected_coords = selected_piece.get_coords()
+                        game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                        select = False
+            else:
+                pos_b = player_b.get_locations()
+                if mouse_pos in pos_b:
+                    if not select:
+                        select = True
+                    selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
+                else:
+                    if select and mouse_pos in selected_piece.get_available_moves():
+                        selected_coords = selected_piece.get_coords()
+                        game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                        select = False
+            board_draw(game_board)
+
     pygame.display.flip()
 pygame.quit()

@@ -18,6 +18,13 @@ class Piece:
     def get_available_moves(self):
         return self.available_moves
 
+    def clear_moves(self):
+        self.available_moves.clear()
+
+    def remove_moves(self, moves):
+        for i in moves:
+            self.available_moves.remove(i)
+
     def set_cell(self, x, y):
         self.ord_x = x
         self.ord_y = y
@@ -36,28 +43,33 @@ class Pawn(Piece):
         self.start = True
 
     def check_moves(self, game_board):
+        self.clear_moves()
         if self.color == 'w':
-            if not game_board.board[self.ord_x][self.ord_y + 1].piece:
-                self.available_moves.append((self.ord_x, self.ord_y + 1))
-                if self.start and game_board.board[self.ord_x][self.ord_y + 2] == '':
-                    self.available_moves.append((self.ord_x, self.ord_y + 2))
-            if game_board.board[self.ord_x + 1][self.ord_y + 1].piece.color and borders(self.ord_x + 1, self.ord_y + 1):
-                if game_board.board[self.ord_x + 1][self.ord_y + 1].piece.color == 'b':
-                    self.available_moves.append((self.ord_x + 1, self.ord_y + 1))
-            if game_board.board[self.ord_x - 1][self.ord_y + 1].piece.color and borders(self.ord_x - 1, self.ord_y + 1):
-                if game_board.board[self.ord_x - 1][self.ord_y + 1].piece.color == 'b':
-                    self.available_moves.append((self.ord_x - 1, self.ord_y + 1))
+            if borders(self.ord_x + 1, self.ord_y) and not game_board.board[self.ord_x + 1][self.ord_y]:
+                self.available_moves.append((self.ord_x + 1, self.ord_y))
+                if self.start and not game_board.board[self.ord_x + 2][self.ord_y]:
+                    self.available_moves.append((self.ord_x + 2, self.ord_y))
+            if borders(self.ord_x + 1, self.ord_y + 1) and game_board.board[self.ord_x + 1][self.ord_y + 1]:
+                if game_board.board[self.ord_x + 1][self.ord_y + 1].color:
+                    if game_board.board[self.ord_x + 1][self.ord_y + 1].color == 'b':
+                        self.available_moves.append((self.ord_x + 1, self.ord_y + 1))
+            if borders(self.ord_x + 1, self.ord_y - 1) and game_board.board[self.ord_x + 1][self.ord_y - 1]:
+                if game_board.board[self.ord_x + 1][self.ord_y - 1].color:
+                    if game_board.board[self.ord_x + 1][self.ord_y - 1].color == 'b':
+                        self.available_moves.append((self.ord_x + 1, self.ord_y - 1))
         else:
-            if not game_board.board[self.ord_x][self.ord_y - 1].piece:
-                self.available_moves.append((self.ord_x, self.ord_y - 1))
-                if self.start and game_board.board[self.ord_x][self.ord_y - 2] == '':
-                    self.available_moves.append((self.ord_x, self.ord_y - 2))
-            if game_board.board[self.ord_x + 1][self.ord_y - 1].piece.color and borders(self.ord_x + 1, self.ord_y - 1):
-                if game_board.board[self.ord_x + 1][self.ord_y - 1].piece.color == 'w':
-                    self.available_moves.append((self.ord_x + 1, self.ord_y + 1))
-            if game_board.board[self.ord_x - 1][self.ord_y - 1].piece.color and borders(self.ord_x - 1, self.ord_y - 1):
-                if game_board.board[self.ord_x - 1][self.ord_y - 1].piece.color == 'w':
-                    self.available_moves.append((self.ord_x - 1, self.ord_y - 1))
+            if borders(self.ord_x - 1, self.ord_y) and not game_board.board[self.ord_x - 1][self.ord_y]:
+                self.available_moves.append((self.ord_x - 1, self.ord_y))
+                if self.start and not game_board.board[self.ord_x - 2][self.ord_y]:
+                    self.available_moves.append((self.ord_x - 2, self.ord_y))
+            if borders(self.ord_x - 1, self.ord_y - 1) and game_board.board[self.ord_x - 1][self.ord_y - 1]:
+                if game_board.board[self.ord_x - 1][self.ord_y - 1].color:
+                    if game_board.board[self.ord_x - 1][self.ord_y - 1].color == 'w':
+                        self.available_moves.append((self.ord_x - 1, self.ord_y - 1))
+            if borders(self.ord_x - 1, self.ord_y + 1) and game_board.board[self.ord_x - 1][self.ord_y + 1]:
+                if game_board.board[self.ord_x - 1][self.ord_y + 1].color:
+                    if game_board.board[self.ord_x - 1][self.ord_y + 1].color == 'w':
+                        self.available_moves.append((self.ord_x - 1, self.ord_y + 1))
 
 
 class King(Piece):
@@ -69,6 +81,7 @@ class King(Piece):
         self.move_coords_y = [0, 1, 1, 1, 0, -1, -1, -1]
 
     def check_moves(self, game_board):
+        self.clear_moves()
         for i in range(8):
             new_x = self.ord_x + self.move_coords_x[i]
             new_y = self.ord_y + self.move_coords_y[i]
@@ -76,13 +89,13 @@ class King(Piece):
                 continue
             if not game_board.board[new_x][new_y] or game_board.board[new_x][new_y].color != self.color:
                 self.available_moves.append((new_x, new_y))
-        if (self.castle_king and not game_board.board[self.ord_x + 1][self.ord_y]
-                and not game_board.board[self.ord_x + 2][self.ord_y]):
-            self.available_moves.append((self.ord_x + 2, self.ord_y))
-        if (self.castle_queen and not game_board.board[self.ord_x - 1][self.ord_y]
-                and not game_board.board[self.ord_x - 2][self.ord_y]
-                and not game_board.board[self.ord_x - 3][self.ord_y]):
-            self.available_moves.append((self.ord_x - 2, self.ord_y))
+        if (self.castle_king and borders(self.ord_x, self.ord_y + 1) and not game_board.board[self.ord_x][self.ord_y + 1]
+                and borders(self.ord_x, self.ord_y + 2) and not game_board.board[self.ord_x][self.ord_y + 2]):
+            self.available_moves.append((self.ord_x, self.ord_y + 2))
+        if (self.castle_queen and borders(self.ord_x, self.ord_y - 1) and not game_board.board[self.ord_x][self.ord_y - 1]
+                and borders(self.ord_x, self.ord_y - 2) and not game_board.board[self.ord_x][self.ord_y - 2]
+                and borders(self.ord_x, self.ord_y - 3) and not game_board.board[self.ord_x][self.ord_y - 3]):
+            self.available_moves.append((self.ord_x, self.ord_y - 2))
 
 
 class Rook(Piece):
@@ -90,6 +103,7 @@ class Rook(Piece):
         Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
+        self.clear_moves()
         def moving(new_x, new_y):
             if not borders(new_x, new_y):
                 return False
@@ -132,6 +146,7 @@ class Bishop(Piece):
         Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
+        self.clear_moves()
         def moving(new_x, new_y):
             if not borders(new_x, new_y):
                 return False
@@ -174,6 +189,7 @@ class Queen(Piece):
         Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
+        self.clear_moves()
         def moving(new_x, new_y):
             if not borders(new_x, new_y):
                 return False
@@ -242,10 +258,10 @@ class Knight(Piece):
         self.coord_y = [1, 2, 2, 1, -1, -2, -2, -1]
 
     def check_moves(self, game_board):
+        self.clear_moves()
         for i in range(8):
             new_x = self.ord_x + self.coord_x[i]
-            new_y = self.ord_x + self.coord_y[i]
-
+            new_y = self.ord_y + self.coord_y[i]
             if borders(new_x, new_y):
                 if not game_board.board[new_x][new_y] or game_board.board[new_x][new_y].color != self.color:
                     self.available_moves.append((new_x, new_y))
