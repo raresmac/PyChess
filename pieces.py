@@ -6,9 +6,10 @@ def borders(x, y):
 
 
 class Piece:
-    def __init__(self, board, ord_x, ord_y):
+    def __init__(self, board, ord_x, ord_y, color):
         self.ord_x = ord_x
         self.ord_y = ord_y
+        self.color = color
         board.set_cell(ord_x, ord_y, self)
         self.available_moves = []
 
@@ -21,13 +22,18 @@ class Piece:
         self.ord_x = x
         self.ord_y = y
 
+    def get_coords(self):
+        return self.ord_x, self.ord_y
+
+    def get_color(self):
+        return self.color
+
 
 class Pawn(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
+        Piece.__init__(self, board, ord_x, ord_y, color)
         self.en_pass = False
         self.start = True
-        self.color = color
 
     def check_moves(self, game_board):
         if self.color == 'w':
@@ -56,10 +62,9 @@ class Pawn(Piece):
 
 class King(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
+        Piece.__init__(self, board, ord_x, ord_y, color)
         self.castle_king = True
         self.castle_queen = True
-        self.color = color
         self.move_coords_x = [-1, -1, 0, 1, 1, 1, 0, -1]
         self.move_coords_y = [0, 1, 1, 1, 0, -1, -1, -1]
 
@@ -82,8 +87,7 @@ class King(Piece):
 
 class Rook(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
-        self.color = color
+        Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
         def moving(new_x, new_y):
@@ -125,8 +129,7 @@ class Rook(Piece):
 
 class Bishop(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
-        self.color = color
+        Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
         def moving(new_x, new_y):
@@ -168,8 +171,7 @@ class Bishop(Piece):
 
 class Queen(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
-        self.color = color
+        Piece.__init__(self, board, ord_x, ord_y, color)
 
     def check_moves(self, game_board):
         def moving(new_x, new_y):
@@ -235,8 +237,7 @@ class Queen(Piece):
 
 class Knight(Piece):
     def __init__(self, board, ord_x, ord_y, color):
-        Piece.__init__(self, board, ord_x, ord_y)
-        self.color = color
+        Piece.__init__(self, board, ord_x, ord_y, color)
         self.coord_x = [-2, -1, 1, 2, 2, 1, -1, -2]
         self.coord_y = [1, 2, 2, 1, -1, -2, -2, -1]
 

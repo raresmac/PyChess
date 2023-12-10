@@ -36,16 +36,23 @@ class Board:
         self.checkmate = False
         self.move = 'w'
 
-    @staticmethod
-    def check_check(self):
-        for i in range(9):
-            for j in range(9):
-                if self.board[i][j] is pieces.King:
-                    if self.board[i][j].color == 'w':
-                        white_king = (i, j)
-                    else:
-                        black_king = (i, j)
-
+    def check_check(self, player_w, player_b):
+        if self.move == 'w':
+            white_king = player_w.get_piece(0).get_coords()
+            nr_pieces = player_b.get_nr_pieces()
+            for i in nr_pieces:
+                moves = player_b.get_piece(i).get_available_moves()
+                if white_king in moves:
+                    return True
+            return False
+        else:
+            black_king = player_b.get_piece(0).get_coords()
+            nr_pieces = player_w.get_nr_pieces()
+            for i in nr_pieces:
+                moves = player_w.get_piece(i).get_available_moves()
+                if black_king in moves:
+                    return True
+            return False
 
     def get_cell(self, x, y):
         return self.board[x][y]
