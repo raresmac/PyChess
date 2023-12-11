@@ -60,6 +60,7 @@ game_board = board.Board()
 player_w = player.Player(game_board, 'w')
 player_b = player.Player(game_board, 'b')
 game_board.set_players(player_w, player_b)
+game_board.update_available_moves()
 
 
 def board_draw(game_board):
@@ -126,10 +127,12 @@ def board_draw(game_board):
                         screen.blit(black_queen_light, (coords_x[j], coords_y[i]))
 
 
-# for i in range(1, 9):
-#     for j in range(1, 9):
-#         print(game_board.get_cell(i, j))
-#     print('---')
+def get_player_pieces():
+    print('-------------')
+    print('white:')
+    print(game_board.get_players()[0].get_locations())
+    print('black:')
+    print(game_board.get_players()[1].get_locations())
 
 
 run = True
@@ -142,7 +145,7 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            game_board.update_available_moves()
+            # get_player_pieces()
             mouse_pos = ((588 - event.pos[1]) // 68 + 1, (event.pos[0] - 45) // 68 + 1)
             if game_board.get_move() == 0:
                 pos_w = player_w.get_locations()
@@ -155,6 +158,8 @@ while run:
                         selected_coords = selected_piece.get_coords()
                         game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
                         select = False
+                        selected_piece = None
+                        game_board.update_available_moves()
             else:
                 pos_b = player_b.get_locations()
                 if mouse_pos in pos_b:
@@ -166,6 +171,10 @@ while run:
                         selected_coords = selected_piece.get_coords()
                         game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
                         select = False
+                        selected_piece = None
+                        game_board.update_available_moves()
+            # if selected_piece:
+            #     print(selected_piece.get_available_moves())
             board_draw(game_board)
 
     pygame.display.flip()

@@ -42,29 +42,72 @@ class Board:
 
     def set_cell(self, x, y, piece):
         ord_x, ord_y = piece.get_coords()
-        self.board[ord_x][ord_y] = None
-        self.board[x][y] = piece
-        print(piece, x, y)
-        piece.set_cell(x, y)
-        print(piece.get_coords())
+        other = self.move * (-1) + 1
+
+        # moving the rook removes castling option
+        if self.players[self.move] and isinstance(piece, pieces.Rook):
+            if piece == self.board[1][1]:
+                self.players[0].get_piece(0).no_castle_queen()
+            elif piece == self.board[1][8]:
+                self.players[0].get_piece(0).no_castle_king()
+            elif piece == self.board[8][1]:
+                self.players[1].get_piece(0).no_castle_queen()
+            elif piece == self.board[8][8]:
+                self.players[1].get_piece(0).no_castle_king()
 
         # castling
-        if self.players[self.move] and piece == self.players[self.move].get_piece(0):
-            if y - ord_y > 1:
+        if self.players[self.move] and isinstance(piece, pieces.King):
+            castle_king, castle_queen = piece.get_castle()
+            if y - ord_y > 1 and castle_king:
                 if self.move == 0:
                     self.set_move()
                     self.set_cell(ord_x, ord_y + 1, self.board[1][8])
                 else:
                     self.set_move()
                     self.set_cell(ord_x, ord_y + 1, self.board[8][8])
-            elif ord_y - y > 1:
+            elif ord_y - y > 1 and castle_queen:
                 if self.move == 0:
                     self.set_move()
                     self.set_cell(ord_x, ord_y - 1, self.board[1][1])
                 else:
                     self.set_move()
                     self.set_cell(ord_x, ord_y - 1, self.board[8][1])
+            piece.no_castle_king()
+            piece.no_castle_queen()
 
+        # removing all en passant from the other player
+        if self.players[other]:
+            other_pieces = self.players[other].get_pieces()
+            for a_piece in other_pieces:
+                if isinstance(a_piece, pieces.Pawn) and a_piece.get_en_pass():
+                    a_piece.set_en_pass()
+
+        # preparing en passant
+        if self.players[self.move] and isinstance(piece, pieces.Pawn):
+            if piece.get_start() and abs(x - ord_x) == 2:
+                piece.set_en_pass()
+
+        # en passant
+        if self.players[self.move] and isinstance(piece, pieces.Pawn) and not self.board[x][y] and y != ord_y:
+            if self.move == 0:
+                if self.players[other]:
+                    self.players[other].lose_piece(self.board[x - 1][y])
+                self.board[x - 1][y] = None
+            else:
+                if self.players[other]:
+                    self.players[other].lose_piece(self.board[x + 1][y])
+                self.board[x + 1][y] = None
+
+        # removing double jump from pawn
+        if self.players[self.move] and isinstance(piece, pieces.Pawn):
+            piece.unset_start()
+
+        if self.players[other]:
+            self.players[other].lose_piece(self.board[x][y])
+
+        self.board[ord_x][ord_y] = None
+        self.board[x][y] = piece
+        piece.set_cell(x, y)
         self.set_move()
 
     def get_move(self):
@@ -85,6 +128,8 @@ class Board:
         nr_pieces = self.players[self.move].get_nr_pieces()
         for i in range(nr_pieces):
             self.players[self.move].get_piece(i).check_moves(self)
+            # for j in self.players[self.move].get_piece(i).get_available_moves():
+            #     work in progress
         nr_pieces = self.players[other].get_nr_pieces()
         for i in range(nr_pieces):
             self.players[other].get_piece(i).check_moves(self)
@@ -116,7 +161,3 @@ class Board:
             if moves:
                 return False
         return True
-
-    def castling(self, choice):
-        choice = 0
-        # de facut

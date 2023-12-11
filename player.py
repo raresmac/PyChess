@@ -39,13 +39,17 @@ class Player:
     def get_piece(self, index: int):
         return self.pieces[index]
 
+    def get_pieces(self):
+        return self.pieces
+
     def get_nr_pieces(self):
         return len(self.pieces)
 
-    def lose_piece(self, x, y):
+    def lose_piece(self, piece):
         for i in range(len(self.pieces)):
-            if (x, y) == self.pieces[i].get_coords():
+            if self.pieces[i] == piece:
                 del self.pieces[i]
+                return
 
     def promote(self, x, y, choice):
         for i in range(len(self.pieces)):
