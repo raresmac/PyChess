@@ -97,6 +97,7 @@ class Board:
                 if self.players[other]:
                     self.players[other].lose_piece(self.board[x + 1][y])
                 self.board[x + 1][y] = None
+            print('Get wrecked, noob!')
 
         # removing double jump from pawn
         if self.players[self.move] and isinstance(piece, pieces.Pawn):

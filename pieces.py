@@ -135,6 +135,7 @@ class King(Piece):
                 continue
             if not game_board.board[new_x][new_y] or game_board.board[new_x][new_y].color != self.color:
                 ok = True
+                # king near king
                 for j in range(8):
                     new_new_x = new_x + self.move_coords_x[j]
                     new_new_y = new_y + self.move_coords_y[j]
