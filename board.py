@@ -1,3 +1,4 @@
+import pygame
 import pieces
 
 
@@ -36,6 +37,14 @@ class Board:
         self.board[8][8] = pieces.Rook(self, 8, 8, 'b')
         for i in range(1, 9):
             self.board[7][i] = pieces.Pawn(self, 7, i, 'b')
+
+        self.images = None
+
+    def get_image(self, color, piece, back):
+        return self.images[color][piece][back]
+
+    def set_images(self, images):
+        self.images = images
 
     def get_check(self):
         return self.check
@@ -108,6 +117,46 @@ class Board:
         if self.players[self.move] and isinstance(piece, pieces.Pawn):
             piece.unset_start()
 
+        # promoting
+        if isinstance(piece, pieces.Pawn) and x in (1, 8):
+            run = True
+            timer = pygame.time.Clock()
+            font = pygame.font.Font('freesansbold.ttf', 20)
+            fps = 60
+            screen = pygame.display.get_surface()
+            pygame.draw.rect(screen, (255, 255, 255), [145, 195, 345, 165])
+            promotion = font.render('Choose your piece:', True, (0, 0, 0))
+            screen.blit(promotion, (220, 215))
+            piece_pics = []
+            for i in range(1, 5):
+                image = self.images[self.move][i][(x + y) % 2]
+                piece_pics.append(image)
+            screen.blit(promotion, (220, 215))
+            for i in range(4):
+                screen.blit(piece_pics[i], (175 + 68 * i, 250))
+            pygame.display.update()
+            while run:
+                timer.tick(fps)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if 175 <= event.pos[0] <= 175 + 68 * 4 and 250 <= event.pos[1] <= 318:
+                            mouse_pos = (event.pos[0] - 175) // 68
+                            choice = 'Q'
+                            if self.move == 0:
+                                if mouse_pos == 1:
+                                    choice = 'R'
+                                elif mouse_pos == 2:
+                                    choice = 'B'
+                                elif mouse_pos == 3:
+                                    choice = 'N'
+                            piece = self.players[self.move].promote(ord_x, ord_y, choice)
+                            run = False
+                            self.set_move()
+
         if self.players[other] and self.board[x][y]:
             self.players[other].lose_piece(self.board[x][y])
 
@@ -157,7 +206,6 @@ class Board:
         return True
 
     def update_available_moves(self, rec=True, mine=True, oppo=True):
-        # print(self.board[5][4])
         other = self.move * (-1) + 1
         if mine:
             nr_pieces = self.players[self.move].get_nr_pieces()

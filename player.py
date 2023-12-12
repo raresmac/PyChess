@@ -65,4 +65,4 @@ class Player:
                     self.pieces[i] = pieces.Bishop(self.game_board, x, y, self.color)
                 elif choice == 'N':
                     self.pieces[i] = pieces.Knight(self.game_board, x, y, self.color)
-
+                return self.pieces[i]

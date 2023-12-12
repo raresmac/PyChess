@@ -13,6 +13,9 @@ class Piece:
         board.set_cell(ord_x, ord_y, self)
         self.available_moves = []
 
+    def __str__(self):
+        return str(self.__class__) + ':' + str(self.ord_x) + ' ' + str(self.ord_y) + '-' + str(self.color)
+
     def check_moves(self, board): pass
 
     def get_available_moves(self):

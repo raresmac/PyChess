@@ -1,5 +1,4 @@
 import pygame
-
 import pieces
 import board
 import player
@@ -76,8 +75,9 @@ def image_array():
     return images
 
 
-images = image_array()
 game_board = board.Board()
+images = image_array()
+game_board.set_images(images)
 player_w = player.Player(game_board, 'w')
 player_b = player.Player(game_board, 'b')
 game_board.set_players(player_w, player_b)
@@ -128,14 +128,6 @@ def board_draw(screen, game_board, images, rectang=None, sel_piece=None):
         pygame.draw.circle(screen, (100, 250, 0), (circles[i][0], circles[i][1]), 8)
 
 
-def get_player_pieces():
-    print('-------------')
-    print('white:')
-    print(game_board.get_players()[0].get_locations())
-    print('black:')
-    print(game_board.get_players()[1].get_locations())
-
-
 run = True
 select = False
 selected_piece = None
@@ -147,7 +139,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if not finished and event.type == pygame.MOUSEBUTTONDOWN:
+        elif not finished and event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = ((initial_y + 68 - event.pos[1]) // 68 + 1, (event.pos[0] - initial_x) // 68 + 1)
             if game_board.get_move() == 0:
                 pos_w = player_w.get_locations()
