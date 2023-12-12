@@ -111,7 +111,6 @@ class Pawn(Piece):
                             self.available_moves.append((self.ord_x - 1, self.ord_y - 1))
 
 
-
 class King(Piece):
     def __init__(self, board, ord_x, ord_y, color):
         Piece.__init__(self, board, ord_x, ord_y, color)

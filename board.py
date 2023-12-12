@@ -70,6 +70,17 @@ class Board:
             elif piece == self.board[8][8]:
                 self.players[1].get_piece(0).no_castle_king()
 
+        # capturing the rook removes castling option
+        if self.players[self.move] and x in (1, 8) and y in (1, 8):
+            if (x, y) == (1, 1):
+                self.players[0].get_piece(0).no_castle_queen()
+            elif (x, y) == (1, 8):
+                self.players[0].get_piece(0).no_castle_king()
+            elif (x, y) == (8, 1):
+                self.players[1].get_piece(0).no_castle_queen()
+            elif (x, y) == (8, 8):
+                self.players[1].get_piece(0).no_castle_king()
+
         # castling
         if self.players[self.move] and isinstance(piece, pieces.King):
             castle_king, castle_queen = piece.get_castle()
@@ -90,7 +101,7 @@ class Board:
             piece.no_castle_king()
             piece.no_castle_queen()
 
-        # removing all en passant from the other player
+        # removing all en passants from the other player
         if self.players[other]:
             other_pieces = self.players[other].get_pieces()
             for a_piece in other_pieces:
@@ -146,13 +157,12 @@ class Board:
                         if 175 <= event.pos[0] <= 175 + 68 * 4 and 250 <= event.pos[1] <= 318:
                             mouse_pos = (event.pos[0] - 175) // 68
                             choice = 'Q'
-                            if self.move == 0:
-                                if mouse_pos == 1:
-                                    choice = 'R'
-                                elif mouse_pos == 2:
-                                    choice = 'B'
-                                elif mouse_pos == 3:
-                                    choice = 'N'
+                            if mouse_pos == 1:
+                                choice = 'R'
+                            elif mouse_pos == 2:
+                                choice = 'B'
+                            elif mouse_pos == 3:
+                                choice = 'N'
                             piece = self.players[self.move].promote(ord_x, ord_y, choice)
                             run = False
                             self.set_move()
