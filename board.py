@@ -37,6 +37,9 @@ class Board:
         for i in range(1, 9):
             self.board[7][i] = pieces.Pawn(self, 7, i, 'b')
 
+    def set_check(self, value):
+        self.check = value
+
     def get_cell(self, x, y):
         return self.board[x][y]
 
@@ -97,17 +100,17 @@ class Board:
                 if self.players[other]:
                     self.players[other].lose_piece(self.board[x + 1][y])
                 self.board[x + 1][y] = None
-            print('Get wrecked, noob!')
 
         # removing double jump from pawn
         if self.players[self.move] and isinstance(piece, pieces.Pawn):
             piece.unset_start()
 
-        if self.players[other]:
+        if self.players[other] and self.board[x][y]:
             self.players[other].lose_piece(self.board[x][y])
 
         self.board[ord_x][ord_y] = None
         self.board[x][y] = piece
+        print(piece, x, y)
         piece.set_cell(x, y)
         self.set_move()
 
@@ -124,23 +127,78 @@ class Board:
         self.players[0] = player_w
         self.players[1] = player_b
 
-    def update_available_moves(self):
+    def set_cell_simulation(self, x, y, piece):
+        ord_x, ord_y = piece.get_coords()
+        aux_piece = self.board[x][y]
         other = self.move * (-1) + 1
-        nr_pieces = self.players[self.move].get_nr_pieces()
-        for i in range(nr_pieces):
-            self.players[self.move].get_piece(i).check_moves(self)
-            # for j in self.players[self.move].get_piece(i).get_available_moves():
-            #     work in progress
-        nr_pieces = self.players[other].get_nr_pieces()
-        for i in range(nr_pieces):
-            self.players[other].get_piece(i).check_moves(self)
+
+        # simulation
+        self.players[other].lose_piece(self.board[x][y])
+        self.board[x][y] = piece
+        piece.set_cell(x, y)
+        self.board[ord_x][ord_y] = None
+        self.update_available_moves(rec=False, mine=False)
+        # print('for piece ' + str(piece.get_coords()) + ' that moves to ' + str(x) + ' ' + str(y) + ':' + str(self.check_check()))
+        if self.check_check():
+            self.board[x][y] = aux_piece
+            if aux_piece:
+                self.players[other].add_piece(aux_piece)
+            self.board[ord_x][ord_y] = piece
+            piece.set_cell(ord_x, ord_y)
+            self.update_available_moves(rec=False, mine=False)
+            return False
+        self.board[x][y] = aux_piece
+        if aux_piece:
+            self.players[other].add_piece(aux_piece)
+        self.board[ord_x][ord_y] = piece
+        piece.set_cell(ord_x, ord_y)
+        self.update_available_moves(rec=False, mine=False)
+        return True
+
+    def update_available_moves(self, rec=True, mine=True, oppo=True):
+        # print(self.board[5][4])
+        other = self.move * (-1) + 1
+        if mine:
+            nr_pieces = self.players[self.move].get_nr_pieces()
+            for i in range(nr_pieces):
+                piece = self.players[self.move].get_piece(i)
+                piece.check_moves(self)
+
+        if oppo:
+            nr_pieces = self.players[other].get_nr_pieces()
+            for i in range(nr_pieces):
+                piece = self.players[other].get_piece(i)
+                piece.check_moves(self)
+
+        if rec:
+            nr_pieces = self.players[self.move].get_nr_pieces()
+            for i in range(nr_pieces):
+                piece = self.players[self.move].get_piece(i)
+                moves = piece.get_available_moves()
+                to_be_removed = []
+                for j in moves:
+                    if not self.set_cell_simulation(j[0], j[1], piece):
+                        # print('remove move ' + str(j) + ' for piece ' + str(piece))
+                        to_be_removed.append(j)
+                if to_be_removed:
+                    # print('Will remove ' + str(to_be_removed))
+                    piece.remove_moves(to_be_removed)
+                # print(str(piece) + ' at ' + str(piece.get_coords()) + ' can move to ' + str(piece.get_available_moves()))
+
+        if self.checkmate_check():
+            print()
+            print('#########')
+            print('CHECKMATE')
+            print('#########')
+            print()
 
     def check_check(self):
         other = self.move * (-1) + 1
         king = self.players[self.move].get_piece(0).get_coords()
         nr_pieces = self.players[other].get_nr_pieces()
-        for i in nr_pieces:
-            moves = self.players[other].get_piece(i).get_available_moves()
+        for i in range(nr_pieces):
+            piece = self.players[other].get_piece(i)
+            moves = piece.get_available_moves()
             if king in moves:
                 return True
         return False

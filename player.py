@@ -51,6 +51,9 @@ class Player:
                 del self.pieces[i]
                 return
 
+    def add_piece(self, piece):
+        self.pieces.append(piece)
+
     def promote(self, x, y, choice):
         for i in range(len(self.pieces)):
             if (x, y) == self.pieces[i].get_coords():

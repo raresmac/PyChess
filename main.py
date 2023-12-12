@@ -27,8 +27,8 @@ fps = 60
 
 
 # loading images - taken from cburnett
-def image_array():  # [color][piece][background]
-    images = []
+def image_array():
+    images = [] # [color][piece][background]
     for i in range(2):
         lst1 = []
         for j in range(6):
@@ -160,6 +160,8 @@ while run:
                         select = False
                         selected_piece = None
                         game_board.update_available_moves()
+                        if game_board.check_check():
+                            print('Check!')
                         rectang = None
             else:
                 pos_b = player_b.get_locations()
@@ -175,6 +177,7 @@ while run:
                         select = False
                         selected_piece = None
                         game_board.update_available_moves()
+                        game_board.set_check(game_board.check_check())
                         rectang = None
             # if selected_piece:
             #     print(selected_piece.get_available_moves())
