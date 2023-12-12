@@ -37,6 +37,9 @@ class Board:
         for i in range(1, 9):
             self.board[7][i] = pieces.Pawn(self, 7, i, 'b')
 
+    def get_check(self):
+        return self.check
+
     def set_check(self, value):
         self.check = value
 
@@ -110,7 +113,6 @@ class Board:
 
         self.board[ord_x][ord_y] = None
         self.board[x][y] = piece
-        print(piece, x, y)
         piece.set_cell(x, y)
         self.set_move()
 
@@ -138,7 +140,6 @@ class Board:
         piece.set_cell(x, y)
         self.board[ord_x][ord_y] = None
         self.update_available_moves(rec=False, mine=False)
-        # print('for piece ' + str(piece.get_coords()) + ' that moves to ' + str(x) + ' ' + str(y) + ':' + str(self.check_check()))
         if self.check_check():
             self.board[x][y] = aux_piece
             if aux_piece:
@@ -178,19 +179,9 @@ class Board:
                 to_be_removed = []
                 for j in moves:
                     if not self.set_cell_simulation(j[0], j[1], piece):
-                        # print('remove move ' + str(j) + ' for piece ' + str(piece))
                         to_be_removed.append(j)
                 if to_be_removed:
-                    # print('Will remove ' + str(to_be_removed))
                     piece.remove_moves(to_be_removed)
-                # print(str(piece) + ' at ' + str(piece.get_coords()) + ' can move to ' + str(piece.get_available_moves()))
-
-        if self.checkmate_check():
-            print()
-            print('#########')
-            print('CHECKMATE')
-            print('#########')
-            print()
 
     def check_check(self):
         other = self.move * (-1) + 1

@@ -14,6 +14,8 @@ pygame.display.set_caption('PyChess')
 screen.fill('dark gray')
 
 # image coordinates
+initial_x = 45
+initial_y = 520
 coords_x = [45 + (i - 1) * 68 for i in range(9)]
 coords_y = [520 - (i - 1) * 68 for i in range(9)]
 
@@ -138,14 +140,15 @@ run = True
 select = False
 selected_piece = None
 rectang = None
+finished = False
 board_draw(screen, game_board, images)
 while run:
     timer.tick(fps)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = ((588 - event.pos[1]) // 68 + 1, (event.pos[0] - 45) // 68 + 1)
+        if not finished and event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = ((initial_y + 68 - event.pos[1]) // 68 + 1, (event.pos[0] - initial_x) // 68 + 1)
             if game_board.get_move() == 0:
                 pos_w = player_w.get_locations()
                 if mouse_pos in pos_w:
@@ -153,15 +156,29 @@ while run:
                         select = True
                     selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
                     rectang = (mouse_pos[0], mouse_pos[1])
-                else:
-                    if select and mouse_pos in selected_piece.get_available_moves():
+                elif select and mouse_pos in selected_piece.get_available_moves():
                         selected_coords = selected_piece.get_coords()
                         game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
                         select = False
                         selected_piece = None
                         game_board.update_available_moves()
-                        if game_board.check_check():
-                            print('Check!')
+                        game_board.set_check(game_board.check_check())
+                        if game_board.checkmate_check():
+                            board_draw(screen, game_board, images, rectang, selected_piece)
+                            pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
+                            checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
+                            screen.blit(checkmate, (200, 15))
+                            pygame.display.update()
+                            finished = True
+                            break
+                        elif game_board.draw_check():
+                            board_draw(screen, game_board, images, rectang, selected_piece)
+                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                            draw = font.render("It's a draw!", True, (255, 255, 255))
+                            screen.blit(draw, (300, 15))
+                            pygame.display.update()
+                            finished = True
+                            break
                         rectang = None
             else:
                 pos_b = player_b.get_locations()
@@ -170,17 +187,30 @@ while run:
                         select = True
                     selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
                     rectang = (mouse_pos[0], mouse_pos[1])
-                else:
-                    if select and mouse_pos in selected_piece.get_available_moves():
+                elif select and mouse_pos in selected_piece.get_available_moves():
                         selected_coords = selected_piece.get_coords()
                         game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
                         select = False
                         selected_piece = None
                         game_board.update_available_moves()
                         game_board.set_check(game_board.check_check())
+                        if game_board.checkmate_check():
+                            board_draw(screen, game_board, images, rectang, selected_piece)
+                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                            checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
+                            screen.blit(checkmate, (200, 15))
+                            pygame.display.update()
+                            finished = True
+                            break
+                        elif game_board.draw_check():
+                            board_draw(screen, game_board, images, rectang, selected_piece)
+                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                            draw = font.render("It's a draw!", True, (255, 255, 255))
+                            screen.blit(draw, (300, 15))
+                            pygame.display.update()
+                            finished = True
+                            break
                         rectang = None
-            # if selected_piece:
-            #     print(selected_piece.get_available_moves())
             screen.fill('dark gray')
             board_draw(screen, game_board, images, rectang, selected_piece)
     pygame.display.flip()
