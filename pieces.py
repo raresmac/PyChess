@@ -38,6 +38,9 @@ class Piece:
     def get_color(self):
         return self.color
 
+    def get_move(self, index):
+        return self.available_moves[index]
+
 
 class Pawn(Piece):
     def __init__(self, board, ord_x, ord_y, color):

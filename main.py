@@ -1,3 +1,5 @@
+import sys
+import random
 import pygame
 import pieces
 import board
@@ -78,9 +80,10 @@ def image_array():
 game_board = board.Board()
 images = image_array()
 game_board.set_images(images)
-player_w = player.Player(game_board, 'w')
-player_b = player.Player(game_board, 'b')
-game_board.set_players(player_w, player_b)
+players = []
+players.append(player.Player(game_board, 'w'))
+players.append(player.Player(game_board, 'b'))
+game_board.set_players(players[0], players[1])
 game_board.update_available_moves()
 
 
@@ -128,82 +131,173 @@ def board_draw(screen, game_board, images, rectang=None, sel_piece=None):
         pygame.draw.circle(screen, (100, 250, 0), (circles[i][0], circles[i][1]), 8)
 
 
-run = True
-select = False
-selected_piece = None
-rectang = None
-finished = False
-board_draw(screen, game_board, images)
-while run:
-    timer.tick(fps)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        elif not finished and event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = ((initial_y + 68 - event.pos[1]) // 68 + 1, (event.pos[0] - initial_x) // 68 + 1)
-            if game_board.get_move() == 0:
-                pos_w = player_w.get_locations()
+def human():
+    run = True
+    select = False
+    selected_piece = None
+    rectang = None
+    finished = False
+    board_draw(screen, game_board, images)
+    while run:
+        timer.tick(fps)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif not finished and event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = ((initial_y + 68 - event.pos[1]) // 68 + 1, (event.pos[0] - initial_x) // 68 + 1)
+                if game_board.get_move() == 0:
+                    pos_w = players[0].get_locations()
+                    if mouse_pos in pos_w:
+                        if not select:
+                            select = True
+                        selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
+                        rectang = (mouse_pos[0], mouse_pos[1])
+                    elif select and mouse_pos in selected_piece.get_available_moves():
+                            selected_coords = selected_piece.get_coords()
+                            game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                            select = False
+                            selected_piece = None
+                            game_board.update_available_moves()
+                            game_board.set_check(game_board.check_check())
+                            if game_board.checkmate_check():
+                                board_draw(screen, game_board, images, rectang, selected_piece)
+                                pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
+                                checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
+                                screen.blit(checkmate, (200, 15))
+                                pygame.display.update()
+                                finished = True
+                                break
+                            elif game_board.draw_check():
+                                board_draw(screen, game_board, images, rectang, selected_piece)
+                                pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                                draw = font.render("It's a draw!", True, (255, 255, 255))
+                                screen.blit(draw, (300, 15))
+                                pygame.display.update()
+                                finished = True
+                                break
+                            rectang = None
+                else:
+                    pos_b = players[1].get_locations()
+                    if mouse_pos in pos_b:
+                        if not select:
+                            select = True
+                        selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
+                        rectang = (mouse_pos[0], mouse_pos[1])
+                    elif select and mouse_pos in selected_piece.get_available_moves():
+                            game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                            select = False
+                            selected_piece = None
+                            game_board.update_available_moves()
+                            game_board.set_check(game_board.check_check())
+                            if game_board.checkmate_check():
+                                board_draw(screen, game_board, images, rectang, selected_piece)
+                                pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                                checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
+                                screen.blit(checkmate, (200, 15))
+                                pygame.display.update()
+                                finished = True
+                                break
+                            elif game_board.draw_check():
+                                board_draw(screen, game_board, images, rectang, selected_piece)
+                                pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                                draw = font.render("It's a draw!", True, (255, 255, 255))
+                                screen.blit(draw, (300, 15))
+                                pygame.display.update()
+                                finished = True
+                                break
+                            rectang = None
+                screen.fill('dark gray')
+                board_draw(screen, game_board, images, rectang, selected_piece)
+        pygame.display.flip()
+    pygame.quit()
+
+
+def cpu(color):
+    run = True
+    select = False
+    selected_piece = None
+    rectang = None
+    finished = False
+    board_draw(screen, game_board, images)
+    while run:
+        timer.tick(fps)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif not finished and event.type == pygame.MOUSEBUTTONDOWN and game_board.get_move() == color:
+                mouse_pos = ((initial_y + 68 - event.pos[1]) // 68 + 1, (event.pos[0] - initial_x) // 68 + 1)
+                pos_w = players[color].get_locations()
                 if mouse_pos in pos_w:
                     if not select:
                         select = True
                     selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
                     rectang = (mouse_pos[0], mouse_pos[1])
                 elif select and mouse_pos in selected_piece.get_available_moves():
-                        selected_coords = selected_piece.get_coords()
-                        game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
-                        select = False
-                        selected_piece = None
-                        game_board.update_available_moves()
-                        game_board.set_check(game_board.check_check())
-                        if game_board.checkmate_check():
-                            board_draw(screen, game_board, images, rectang, selected_piece)
-                            pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
-                            checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
-                            screen.blit(checkmate, (200, 15))
-                            pygame.display.update()
-                            finished = True
-                            break
-                        elif game_board.draw_check():
-                            board_draw(screen, game_board, images, rectang, selected_piece)
-                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
-                            draw = font.render("It's a draw!", True, (255, 255, 255))
-                            screen.blit(draw, (300, 15))
-                            pygame.display.update()
-                            finished = True
-                            break
-                        rectang = None
-            else:
-                pos_b = player_b.get_locations()
-                if mouse_pos in pos_b:
-                    if not select:
-                        select = True
-                    selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
-                    rectang = (mouse_pos[0], mouse_pos[1])
-                elif select and mouse_pos in selected_piece.get_available_moves():
-                        selected_coords = selected_piece.get_coords()
-                        game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
-                        select = False
-                        selected_piece = None
-                        game_board.update_available_moves()
-                        game_board.set_check(game_board.check_check())
-                        if game_board.checkmate_check():
-                            board_draw(screen, game_board, images, rectang, selected_piece)
-                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
-                            checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
-                            screen.blit(checkmate, (200, 15))
-                            pygame.display.update()
-                            finished = True
-                            break
-                        elif game_board.draw_check():
-                            board_draw(screen, game_board, images, rectang, selected_piece)
-                            pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
-                            draw = font.render("It's a draw!", True, (255, 255, 255))
-                            screen.blit(draw, (300, 15))
-                            pygame.display.update()
-                            finished = True
-                            break
-                        rectang = None
-            screen.fill('dark gray')
-            board_draw(screen, game_board, images, rectang, selected_piece)
-    pygame.display.flip()
-pygame.quit()
+                    game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                    select = False
+                    selected_piece = None
+                    game_board.update_available_moves()
+                    game_board.set_check(game_board.check_check())
+                    if game_board.checkmate_check():
+                        board_draw(screen, game_board, images, rectang, selected_piece)
+                        pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
+                        checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
+                        screen.blit(checkmate, (200, 15))
+                        pygame.display.update()
+                        finished = True
+                        break
+                    elif game_board.draw_check():
+                        board_draw(screen, game_board, images, rectang, selected_piece)
+                        pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                        draw = font.render("It's a draw!", True, (255, 255, 255))
+                        screen.blit(draw, (300, 15))
+                        pygame.display.update()
+                        finished = True
+                        break
+                    rectang = None
+            elif not finished and game_board.get_move() != color:
+                other = color * (-1) + 1
+                piece_index = random.randint(0, players[other].get_nr_pieces() - 1)
+                selected_piece = players[other].get_piece(piece_index)
+                while len(selected_piece.get_available_moves()) == 0:
+                    piece_index = random.randint(0, players[other].get_nr_pieces() - 1)
+                    selected_piece = players[other].get_piece(piece_index)
+                move = random.randint(0, len(selected_piece.get_available_moves()) - 1)
+                mouse_pos = players[other].get_piece(piece_index).get_move(move)
+                game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                select = False
+                selected_piece = None
+                game_board.update_available_moves()
+                game_board.set_check(game_board.check_check())
+                if game_board.checkmate_check():
+                    board_draw(screen, game_board, images, rectang, selected_piece)
+                    pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                    checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
+                    screen.blit(checkmate, (200, 15))
+                    pygame.display.update()
+                    finished = True
+                    break
+                elif game_board.draw_check():
+                    board_draw(screen, game_board, images, rectang, selected_piece)
+                    pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
+                    draw = font.render("It's a draw!", True, (255, 255, 255))
+                    screen.blit(draw, (300, 15))
+                    pygame.display.update()
+                    finished = True
+                    break
+                rectang = None
+            if not finished:
+                screen.fill('dark gray')
+                board_draw(screen, game_board, images, rectang, selected_piece)
+        pygame.display.flip()
+    pygame.quit()
+
+
+cpu(0)
+# if len(sys.argv) > 1 and sys.argv[1] == 'cpu':
+#     if len(sys.argv) > 2:
+#         cpu(int(sys.argv[2]))
+#     else:
+#         cpu(int(random.randint(0, 1)))
+# else:
+#     human()
