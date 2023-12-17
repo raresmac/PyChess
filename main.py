@@ -1,5 +1,7 @@
 import sys
 import random
+from time import sleep
+
 import pygame
 import pieces
 import board
@@ -171,7 +173,7 @@ def human():
                                 board_draw(screen, game_board, images, rectang, selected_piece)
                                 pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
                                 draw = font.render("It's a draw!", True, (255, 255, 255))
-                                screen.blit(draw, (300, 15))
+                                screen.blit(draw, (240, 15))
                                 pygame.display.update()
                                 finished = True
                                 break
@@ -201,7 +203,7 @@ def human():
                                 board_draw(screen, game_board, images, rectang, selected_piece)
                                 pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
                                 draw = font.render("It's a draw!", True, (255, 255, 255))
-                                screen.blit(draw, (300, 15))
+                                screen.blit(draw, (240, 15))
                                 pygame.display.update()
                                 finished = True
                                 break
@@ -213,6 +215,7 @@ def human():
 
 
 def cpu(color):
+    move_nr = 0
     run = True
     select = False
     selected_piece = None
@@ -233,6 +236,7 @@ def cpu(color):
                     selected_piece = game_board.get_cell(mouse_pos[0], mouse_pos[1])
                     rectang = (mouse_pos[0], mouse_pos[1])
                 elif select and mouse_pos in selected_piece.get_available_moves():
+                    move_nr += 1
                     game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
                     select = False
                     selected_piece = None
@@ -250,12 +254,14 @@ def cpu(color):
                         board_draw(screen, game_board, images, rectang, selected_piece)
                         pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
                         draw = font.render("It's a draw!", True, (255, 255, 255))
-                        screen.blit(draw, (300, 15))
+                        screen.blit(draw, (240, 15))
                         pygame.display.update()
                         finished = True
                         break
                     rectang = None
             elif not finished and game_board.get_move() != color:
+                move_nr += 1
+                sleep(0.2)
                 other = color * (-1) + 1
                 piece_index = random.randint(0, players[other].get_nr_pieces() - 1)
                 selected_piece = players[other].get_piece(piece_index)
@@ -264,7 +270,7 @@ def cpu(color):
                     selected_piece = players[other].get_piece(piece_index)
                 move = random.randint(0, len(selected_piece.get_available_moves()) - 1)
                 mouse_pos = players[other].get_piece(piece_index).get_move(move)
-                game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece)
+                game_board.set_cell(mouse_pos[0], mouse_pos[1], selected_piece, promo='c')
                 select = False
                 selected_piece = None
                 game_board.update_available_moves()
@@ -281,7 +287,7 @@ def cpu(color):
                     board_draw(screen, game_board, images, rectang, selected_piece)
                     pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
                     draw = font.render("It's a draw!", True, (255, 255, 255))
-                    screen.blit(draw, (300, 15))
+                    screen.blit(draw, (240, 15))
                     pygame.display.update()
                     finished = True
                     break
@@ -293,11 +299,10 @@ def cpu(color):
     pygame.quit()
 
 
-cpu(0)
-# if len(sys.argv) > 1 and sys.argv[1] == 'cpu':
-#     if len(sys.argv) > 2:
-#         cpu(int(sys.argv[2]))
-#     else:
-#         cpu(int(random.randint(0, 1)))
-# else:
-#     human()
+if len(sys.argv) > 1 and sys.argv[1] == 'human':
+    human()
+else:
+    if len(sys.argv) > 2:
+        cpu(int(sys.argv[2]))
+    else:
+        cpu(int(random.randint(0, 1)))
