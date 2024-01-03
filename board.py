@@ -5,7 +5,11 @@ import pieces
 
 
 class Board:
+    """Class that contains all the pieces and players.
+    """
     def __init__(self):
+        """Initialize the board with the default position.
+        """
         self.board = []
         self.players = [None, None]
         self.check = False
@@ -43,21 +47,55 @@ class Board:
         self.images = None
 
     def get_image(self, color, piece, back):
+        """Return a texture from array.
+
+        Keyword arguments:
+        color -- color of the piece
+        piece -- type of piece
+        back -- background color
+        """
         return self.images[color][piece][back]
 
     def set_images(self, images):
+        """Change the texture array.
+
+        Keyword arguments:
+        images -- new texture array
+        """
         self.images = images
 
     def get_check(self):
+        """Get check variable.
+        """
         return self.check
 
     def set_check(self, value):
+        """Change the value of variable check.
+
+        Keyword arguments:
+        value -- new value of check
+        """
         self.check = value
 
     def get_cell(self, x, y):
+        """Get piece at position (x, y).
+
+        Keyword arguments:
+        x -- row
+        y -- column (file)
+        """
         return self.board[x][y]
 
     def set_cell(self, x, y, piece, promo='h'):
+        """Change the position of the piece.
+
+        This method checks if it's castling, promotion, en-passant and updates the corresponding variables.
+        Keyword arguments:
+        x -- new row
+        y -- new file
+        piece -- Piece object to be moved
+        promo -- if promotion is done by a human
+        """
         ord_x, ord_y = piece.get_coords()
         other = self.move * (-1) + 1
 
@@ -184,19 +222,38 @@ class Board:
         self.set_move()
 
     def get_move(self):
+        """Get the player who moves now.
+        """
         return self.move
 
     def set_move(self):
+        """Change the player who will move.
+        """
         self.move = self.move * (-1) + 1
 
     def get_players(self):
+        """Get the two players.
+        """
         return self.players
 
     def set_players(self, player_w, player_b):
+        """Set the players array.
+
+        Keyword arguments:
+        player_w -- Player object for white
+        player_b -- Player object for black
+        """
         self.players[0] = player_w
         self.players[1] = player_b
 
     def set_cell_simulation(self, x, y, piece):
+        """Simulates a move (for checking check).
+
+        Keyword arguments:
+        x -- new row
+        y -- new file
+        piece -- Piece object to be moved
+        """
         ord_x, ord_y = piece.get_coords()
         aux_piece = self.board[x][y]
         other = self.move * (-1) + 1
@@ -224,6 +281,13 @@ class Board:
         return True
 
     def update_available_moves(self, rec=True, mine=True, oppo=True):
+        """Updates the moves of every piece according to the new position.
+
+        Keyword arguments:
+        rec -- Update for every piece (in case of simulation)
+        mine -- Update moves for the player that will move next
+        oppo -- Update moves for the player that will not move next
+        """
         other = self.move * (-1) + 1
         if mine:
             nr_pieces = self.players[self.move].get_nr_pieces()
@@ -250,6 +314,8 @@ class Board:
                     piece.remove_moves(to_be_removed)
 
     def check_check(self):
+        """Checks for a check.
+        """
         other = self.move * (-1) + 1
         king = self.players[self.move].get_piece(0).get_coords()
         nr_pieces = self.players[other].get_nr_pieces()
@@ -262,6 +328,8 @@ class Board:
 
 
     def draw_check1(self):
+        """First check for a draw: no moves left for the player that must move.
+        """
         if self.check_check():
             return False
         for i in range(self.players[self.move].get_nr_pieces()):
@@ -272,6 +340,8 @@ class Board:
 
 
     def draw_check2(self):
+        """Second check for a draw: not enough pieces left.
+        """
         print('-----')
         print(self.players[0].get_nr_pieces())
         if self.players[0].get_nr_pieces() > 1:
@@ -291,6 +361,8 @@ class Board:
 
 
     def draw_check(self):
+        """Applies the two checks for a draw.
+        """
         if self.draw_check2():
             return True
         else:
@@ -298,6 +370,8 @@ class Board:
 
 
     def checkmate_check(self):
+        """Checks for checkmate.
+        """
         if not self.check_check():
             return False
         for i in range(self.players[self.move].get_nr_pieces()):

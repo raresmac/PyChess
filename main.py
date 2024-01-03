@@ -33,6 +33,7 @@ fps = 60
 
 # loading images - taken from cburnett
 def image_array():
+    """Loads the image textures."""
     images = [] # [color][piece][background]
     for i in range(2):
         lst1 = []
@@ -90,6 +91,15 @@ game_board.update_available_moves()
 
 
 def board_draw(screen, game_board, images, rectang=None, sel_piece=None):
+    """Updates the board with the new position.
+
+    Keyword arguments:
+    screen -- pygame display variable
+    game_board -- Board variable
+    images -- array of loaded textures
+    rectang -- if the cell at (i, j) is highlighted
+    sel_piece -- if the cell at (i, j) is a valid move
+    """
     circles = []
     if sel_piece:
         moves = sel_piece.get_available_moves()
@@ -134,6 +144,8 @@ def board_draw(screen, game_board, images, rectang=None, sel_piece=None):
 
 
 def human():
+    """Get moves from a human player.
+    """
     run = True
     select = False
     selected_piece = None
@@ -215,6 +227,8 @@ def human():
 
 
 def cpu(color):
+    """Get a random legal move.
+    """
     move_nr = 0
     run = True
     select = False
