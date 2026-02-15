@@ -1,4 +1,4 @@
-import pieces
+from . import pieces
 
 
 class Player:

@@ -1,11 +1,12 @@
 import sys
+import os
 import random
 from time import sleep
-
 import pygame
-import pieces
-import board
-import player
+
+from src import Board
+from src import Player
+from src import pieces
 
 pygame.init()
 
@@ -31,7 +32,6 @@ timer = pygame.time.Clock()
 fps = 60
 
 
-# loading images - taken from cburnett
 def image_array():
     """Loads the image textures."""
     images = [] # [color][piece][background]
@@ -45,47 +45,50 @@ def image_array():
         images.append(lst1)
     images.append([None, None])
 
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+    IMAGE_DIR = os.path.join(BASE_PATH, 'assets', 'images')
+
     # white pieces
-    images[0][0][0] = pygame.image.load('assets/images/king_white_dark.png')
-    images[0][0][1] = pygame.image.load('assets/images/king_white_light.png')
-    images[0][1][0] = pygame.image.load('assets/images/queen_white_dark.png')
-    images[0][1][1] = pygame.image.load('assets/images/queen_white_light.png')
-    images[0][2][0] = pygame.image.load('assets/images/rook_white_dark.png')
-    images[0][2][1] = pygame.image.load('assets/images/rook_white_light.png')
-    images[0][3][0] = pygame.image.load('assets/images/bishop_white_dark.png')
-    images[0][3][1] = pygame.image.load('assets/images/bishop_white_light.png')
-    images[0][4][0] = pygame.image.load('assets/images/knight_white_dark.png')
-    images[0][4][1] = pygame.image.load('assets/images/knight_white_light.png')
-    images[0][5][0] = pygame.image.load('assets/images/pawn_white_dark.png')
-    images[0][5][1] = pygame.image.load('assets/images/pawn_white_light.png')
+    images[0][0][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'king_white_dark.png'))
+    images[0][0][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'king_white_light.png'))
+    images[0][1][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'queen_white_dark.png'))
+    images[0][1][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'queen_white_light.png'))
+    images[0][2][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'rook_white_dark.png'))
+    images[0][2][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'rook_white_light.png'))
+    images[0][3][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'bishop_white_dark.png'))
+    images[0][3][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'bishop_white_light.png'))
+    images[0][4][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'knight_white_dark.png'))
+    images[0][4][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'knight_white_light.png'))
+    images[0][5][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'pawn_white_dark.png'))
+    images[0][5][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'pawn_white_light.png'))
 
     # black pieces
-    images[1][0][0] = pygame.image.load('assets/images/king_black_dark.png')
-    images[1][0][1] = pygame.image.load('assets/images/king_black_light.png')
-    images[1][1][0] = pygame.image.load('assets/images/queen_black_dark.png')
-    images[1][1][1] = pygame.image.load('assets/images/queen_black_light.png')
-    images[1][2][0] = pygame.image.load('assets/images/rook_black_dark.png')
-    images[1][2][1] = pygame.image.load('assets/images/rook_black_light.png')
-    images[1][3][0] = pygame.image.load('assets/images/bishop_black_dark.png')
-    images[1][3][1] = pygame.image.load('assets/images/bishop_black_light.png')
-    images[1][4][0] = pygame.image.load('assets/images/knight_black_dark.png')
-    images[1][4][1] = pygame.image.load('assets/images/knight_black_light.png')
-    images[1][5][0] = pygame.image.load('assets/images/pawn_black_dark.png')
-    images[1][5][1] = pygame.image.load('assets/images/pawn_black_light.png')
+    images[1][0][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'king_black_dark.png'))
+    images[1][0][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'king_black_light.png'))
+    images[1][1][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'queen_black_dark.png'))
+    images[1][1][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'queen_black_light.png'))
+    images[1][2][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'rook_black_dark.png'))
+    images[1][2][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'rook_black_light.png'))
+    images[1][3][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'bishop_black_dark.png'))
+    images[1][3][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'bishop_black_light.png'))
+    images[1][4][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'knight_black_dark.png'))
+    images[1][4][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'knight_black_light.png'))
+    images[1][5][0] = pygame.image.load(os.path.join(IMAGE_DIR, 'pawn_black_dark.png'))
+    images[1][5][1] = pygame.image.load(os.path.join(IMAGE_DIR, 'pawn_black_light.png'))
 
     # empty square
-    images[2][0] = dark_square = pygame.image.load('assets/images/square_dark.png')
-    images[2][1] = light_square = pygame.image.load('assets/images/square_light.png')
+    images[2][0] = dark_square = pygame.image.load(os.path.join(IMAGE_DIR, 'square_dark.png'))
+    images[2][1] = light_square = pygame.image.load(os.path.join(IMAGE_DIR, 'square_light.png'))
 
     return images
 
 
-game_board = board.Board()
+game_board = Board()
 images = image_array()
 game_board.set_images(images)
 players = []
-players.append(player.Player(game_board, 'w'))
-players.append(player.Player(game_board, 'b'))
+players.append(Player(game_board, 'w'))
+players.append(Player(game_board, 'b'))
 game_board.set_players(players[0], players[1])
 game_board.update_available_moves()
 
@@ -176,7 +179,7 @@ def human():
                             if game_board.checkmate_check():
                                 board_draw(screen, game_board, images, rectang, selected_piece)
                                 pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
-                                checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
+                                checkmate = font.render('Checkmate! You won!', True, (0, 0, 0))
                                 screen.blit(checkmate, (200, 15))
                                 pygame.display.update()
                                 finished = True
@@ -206,7 +209,7 @@ def human():
                             if game_board.checkmate_check():
                                 board_draw(screen, game_board, images, rectang, selected_piece)
                                 pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
-                                checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
+                                checkmate = font.render('Checkmate! You won!', True, (255, 255, 255))
                                 screen.blit(checkmate, (200, 15))
                                 pygame.display.update()
                                 finished = True
@@ -259,7 +262,7 @@ def cpu(color):
                     if game_board.checkmate_check():
                         board_draw(screen, game_board, images, rectang, selected_piece)
                         pygame.draw.rect(screen, (255, 255, 255), [120, 10, 400, 30])
-                        checkmate = font.render('Checkmate! White won!', True, (0, 0, 0))
+                        checkmate = font.render('Checkmate! You won!', True, (0, 0, 0))
                         screen.blit(checkmate, (200, 15))
                         pygame.display.update()
                         finished = True
@@ -292,7 +295,7 @@ def cpu(color):
                 if game_board.checkmate_check():
                     board_draw(screen, game_board, images, rectang, selected_piece)
                     pygame.draw.rect(screen, (0, 0, 0), [120, 10, 400, 30])
-                    checkmate = font.render('Checkmate! Black won!', True, (255, 255, 255))
+                    checkmate = font.render('Checkmate! You won!', True, (255, 255, 255))
                     screen.blit(checkmate, (200, 15))
                     pygame.display.update()
                     finished = True

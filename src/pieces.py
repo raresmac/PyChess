@@ -20,7 +20,7 @@ class Piece:
         self.ord_x = ord_x
         self.ord_y = ord_y
         self.color = color
-        board.set_cell(ord_x, ord_y, self)
+        self.set_cell(ord_x, ord_y)
         self.available_moves = []
 
     def __str__(self):
@@ -166,6 +166,14 @@ class Pawn(Piece):
                         if game_board.board[self.ord_x][self.ord_y - 1].get_en_pass():
                             self.available_moves.append((self.ord_x - 1, self.ord_y - 1))
 
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'P'
+        else:
+            return 'p'
+
 
 class King(Piece):
     """Class for the kings.
@@ -230,6 +238,14 @@ class King(Piece):
                 and borders(self.ord_x, self.ord_y - 3) and not game_board.board[self.ord_x][self.ord_y - 3]):
             self.available_moves.append((self.ord_x, self.ord_y - 2))
 
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'K'
+        else:
+            return 'k'
+
 
 class Rook(Piece):
     def __init__(self, board, ord_x, ord_y, color):
@@ -280,6 +296,14 @@ class Rook(Piece):
             if not moving(new_x, new_y):
                 break
 
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'R'
+        else:
+            return 'r'
+
 
 class Bishop(Piece):
     def __init__(self, board, ord_x, ord_y, color):
@@ -329,6 +353,14 @@ class Bishop(Piece):
             new_y = self.ord_y - right_down
             if not moving(new_x, new_y):
                 break
+
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'B'
+        else:
+            return 'b'
 
 
 class Queen(Piece):
@@ -404,6 +436,14 @@ class Queen(Piece):
             if not moving(new_x, new_y):
                 break
 
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'Q'
+        else:
+            return 'q'
+
 
 class Knight(Piece):
     def __init__(self, board, ord_x, ord_y, color):
@@ -426,3 +466,11 @@ class Knight(Piece):
             if borders(new_x, new_y):
                 if not game_board.board[new_x][new_y] or game_board.board[new_x][new_y].color != self.color:
                     self.available_moves.append((new_x, new_y))
+
+    def __str__(self):
+        """String for printing. Mainly for debugging.
+        """
+        if self.color == 'w':
+            return 'N'
+        else:
+            return 'n'

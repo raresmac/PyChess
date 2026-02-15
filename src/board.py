@@ -1,7 +1,6 @@
 import random
-
 import pygame
-import pieces
+from . import pieces
 
 
 class Board:
@@ -313,11 +312,14 @@ class Board:
                 if to_be_removed:
                     piece.remove_moves(to_be_removed)
 
-    def check_check(self):
+    def check_check(self, opp=False):
         """Checks for a check.
         """
-        other = self.move * (-1) + 1
-        king = self.players[self.move].get_piece(0).get_coords()
+        move = self.move
+        if opp:
+            move *= -1
+        other = move * (-1) + 1
+        king = self.players[move].get_piece(0).get_coords()
         nr_pieces = self.players[other].get_nr_pieces()
         for i in range(nr_pieces):
             piece = self.players[other].get_piece(i)
@@ -379,3 +381,29 @@ class Board:
             if moves:
                 return False
         return True
+    
+    def update_pieces(self):
+        """ Updates the pieces array based on the players' pieces. Mainly for debugging.
+        """
+        self.board = []
+        for i in range(9):
+            lst = []
+            for j in range(9):
+                lst.append(None)
+            self.board.append(lst)
+        for player in self.players:
+            if player:
+                for piece in player.get_pieces():
+                    x, y = piece.get_coords()
+                    self.board[x][y] = piece
+
+    def __str__(self):
+        string = ''
+        for i in range(1, 9):
+            for j in range(1, 9):
+                if self.get_cell(i, j) == None:
+                    string += ' '
+                else:
+                    string += str(self.get_cell(i, j))
+            string += '\n'
+        return string
